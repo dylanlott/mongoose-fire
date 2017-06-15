@@ -1,0 +1,19 @@
+{
+  "name": "mongoose-fire",
+  "version": "0.0.1",
+  "description": "turn mongoose into firebase with one plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./test/**/*.test.js --recursive"
+  },
+  "keywords": [
+    "mongoose",
+    "firebase",
+    "mongodb",
+    "fire",
+    "query",
+    "socket"
+  ],
+  "author": "dylan lott <lott.dylan@gmail.com>",
+  "license": "MIT"
+}
