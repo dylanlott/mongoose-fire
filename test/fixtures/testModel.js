@@ -8,7 +8,7 @@ const Test = new mongoose.Schema({
   }
 });
 
-Test.plugin(require('../../index.js'));
+Test.plugin(require('../../'));
 
 const testModel = mongoose.model('test', Test);
 

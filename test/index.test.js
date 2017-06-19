@@ -10,9 +10,9 @@ const spies = require('chai-spies');
 const Test = require('./fixtures/testModel.js');
 const EventEmitter = require('events').EventEmitter;
 const socket = require('socket.io');
+const assert = require('assert');
 
 chai.use(spies);
-
 
 before((done) => {
   mongoose.connect('localhost:27017/__mongoose-fire__test__001')
@@ -22,7 +22,7 @@ before((done) => {
 });
 
 beforeEach(function () {
-  Test.find({}).remove();
+  Test.find({}).remove().exec();
 });
 
 describe('mongoose-fire', () => {
@@ -37,20 +37,52 @@ describe('mongoose-fire', () => {
 
   describe('#create', () => {
     it('should emit create event', (done) => {
-      var callback = sinon.spy();
-
-      Test.on('created', (data) => {
-        callback();
-        console.log('data emitted: ', data);
+      const testDoc = new Test({
+        text: '1234'
       });
 
-      const doc = new Test({text: 'create event test'});
-      doc.save();
+      Test.on('create', function (data) {
+        expect(data.text).to.equal('1234');
+        expect(data).to.be.an('object');
+        done();
+      });
 
-      expect(callback.callCount).to.equal(1);
-      done();
+      const spy = sinon.spy(Test, 'on');
+
+      testDoc.save()
+        .then((data) => data)
+        .catch((err) => console.error('Error saving: ', err))
     });
   });
 
+  describe('#update', () => {
+    it('should emit updated event', function (done) {
+      var testDoc = new Test({ text: 'update' })
+      var called = sinon.spy();
+
+      Test.on('update', (updated) => {
+        called();
+        console.log('updated', updated);
+        expect(updated).to.be.an('object');
+      });
+
+      testDoc.save().then((data) => data);
+
+      Test
+        .update({ text: 'update' },
+          {$set: { text: 'this is updated now' }},
+          function(err, doc) {
+            if (err) console.error('Error updating: ', err);
+            console.log('this was changed', doc);
+          });
+
+      expect(called.callCount).to.equal(1);
+      done();
+    });
+
+    it('should emit update:<key> event', function () {
+
+    });
+  });
 });
 
