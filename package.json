@@ -4,7 +4,8 @@
   "description": "turn mongoose into firebase with one plugin",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test/**/*.test.js --recursive"
+    "test": "mocha ./test/*.test.js --recursive",
+    "tape": "tap-prettify ./test/**/*.tape.js"
   },
   "keywords": [
     "mongoose",
@@ -15,5 +16,20 @@
     "socket"
   ],
   "author": "dylan lott <lott.dylan@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "chai": "^4.0.2",
+    "expect": "^1.20.2",
+    "mocha": "^3.4.2",
+    "mongoose": "^4.10.6",
+    "sinon": "^2.3.4",
+    "socket.io": "^2.0.3",
+    "tap-prettify": "0.0.2",
+    "tape": "^4.6.3"
+  },
+  "dependencies": {
+    "chai-spies": "^0.7.1",
+    "underscore": "^1.8.3"
+  }
 }
