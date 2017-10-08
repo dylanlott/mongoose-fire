@@ -21,10 +21,6 @@ before((done) => {
     });
 });
 
-beforeEach(function () {
-  Test.find({}).remove().exec();
-});
-
 describe('mongoose-fire', () => {
   it('should setup correctly and connect to mongoose', () => {
     expect(mongoose.connection.readyState).to.equal(1);
@@ -41,13 +37,11 @@ describe('mongoose-fire', () => {
         text: '1234'
       });
 
-      Test.on('create', function (data) {
+      Test.once('create', function (data) {
         expect(data.text).to.equal('1234');
         expect(data).to.be.an('object');
         done();
       });
-
-      const spy = sinon.spy(Test, 'on');
 
       testDoc.save()
         .then((data) => data)
@@ -56,32 +50,55 @@ describe('mongoose-fire', () => {
   });
 
   describe('#update', () => {
-    it('should emit updated event', function (done) {
-      var testDoc = new Test({ text: 'update' })
-      var called = sinon.spy();
-
-      Test.on('update', (updated) => {
-        called();
-        console.log('updated', updated);
-        expect(updated).to.be.an('object');
+    it('should emit update:<key> event', function (done) {
+      var testDoc = new Test({
+        text: 'updated'
       });
 
-      testDoc.save().then((data) => data);
+      testDoc.save()
+        .then((doc) => {
+          const updated = {
+            text: 'updated'
+          };
 
-      Test
-        .update({ text: 'update' },
-          {$set: { text: 'this is updated now' }},
-          function(err, doc) {
-            if (err) console.error('Error updating: ', err);
-            console.log('this was changed', doc);
+          Test.once('update', (data) => {
+            expect(data).to.be.an('object');
+            expect(data.text).to.equal('1234');
           });
 
-      expect(called.callCount).to.equal(1);
-      done();
+          Test.once('update:text', (data) => {
+            expect(data).to.be.an('object');
+            expect(data.text).to.equal('1234');
+            done();
+          });
+
+          Test.findOne({ text: 'updated' })
+            .then((doc) => {
+              doc.text = '1234'
+              doc.save()
+            })
+            .catch(err => console.error('Error'));
+        });
     });
+  });
 
-    it('should emit update:<key> event', function () {
+  describe('#delete', () => {
+    it('should emit deleted event', (done) => {
+      const deletedDoc = new Test({
+        text: 'deleted'
+      });
 
+      deletedDoc.save()
+        .then((doc) => {
+          Test.on('delete', (data) => {
+            expect(data.text).to.equal('deleted');
+            expect(data).to.be.an('object');
+            done();
+          });
+
+          Test.findOne({ _id: doc._id })
+            .then((doc) => doc.remove());
+        });
     });
   });
 });

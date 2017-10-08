@@ -1,18 +1,17 @@
 # mongoose-fire
 
-> Turn any mongoose instance into a firebase-like pub/sub server
+> Make any model emit events on create, update, and delete. 
 
 # Install 
 
+`npm install mongoose-fire`
+
+Then attach it to each model that you want to be an event emitter
 
 ```
-exampleSchema.plugin(require('mongoose-fire'));
-```
+const mongoose-fire = require('mongoose-fire'); 
+exampleSchema.plugin(mongoose-fire);
 
-or you can install it via global mongoose require 
-
-```
-mongoose.plugin(require('mongoose-fire')); // need to test this 
 ```
 
 And you're done!
@@ -22,12 +21,18 @@ And you're done!
 Once these plugins are installed, you can then access the following events 
 
 ```
+Model.on('create')
 
+Modle.on('update')
+
+Model.on('update:<attr>')
+
+Modle.on('remove')
 
 ```
 
-# Sockets 
+## Notice about Middleware hooks 
 
-A socket.io also opens up on port 3030 and pushes events by the same name as the javascript events.
-
-
+Events won't be fired when `findByIdAndUpdate` and other similar aggregate methods are used 
+To get an event to fire, you'll have to manually edit the document and manually call the `save()` method. 
+This is because of the way Mongoose handles `findByIdAndUpdate` behind the scenes with the MongoDB driver. 
